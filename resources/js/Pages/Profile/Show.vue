@@ -3,9 +3,12 @@ import AppLayout from "@/Layouts/AppLayout.vue";
 import SectionBorder from "@/Components/SectionBorder.vue";
 import Detail from "@/Pages/Profile/Detail.vue";
 
-defineProps({
+const props = defineProps({
   confirmsTwoFactorAuthentication: Boolean,
   sessions: Array,
+  driver: Object,
+  companies: Array,
+  isAssessmentPassed: Boolean,
 });
 </script>
 
@@ -17,9 +20,9 @@ defineProps({
 
     <div>
       <div class="py-10 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <!-- Pakai Detail.vue sebagai tampilan + editor profil -->
+        <!-- Pakai Detail.vue sebagai tampilan + editor profil + biodata driver -->
         <div v-if="$page.props.jetstream.canUpdateProfileInformation">
-          <Detail :user="$page.props.auth.user" />
+          <Detail :user="$page.props.auth.user" :driver="driver" :companies="companies" :is-assessment-passed="isAssessmentPassed" />
           <SectionBorder />
         </div>
 

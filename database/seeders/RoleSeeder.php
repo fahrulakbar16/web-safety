@@ -14,7 +14,14 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         // Create basic roles
-        Role::firstOrCreate(['name' => 'Public', 'guard_name' => 'web']);
+        $driver = Role::firstOrCreate(['name' => 'Driver', 'guard_name' => 'web']);
+
+        // Driver gets dashboard and assessment permissions
+        $driverPermissions = Permission::whereIn('name', [
+            'dashboard.view',
+            'driver.assessment.view',
+        ])->get();
+        $driver->syncPermissions($driverPermissions);
 
         // Superadmin gets all permissions
         $superadmin = Role::firstOrCreate(['name' => 'Superadmin', 'guard_name' => 'web']);

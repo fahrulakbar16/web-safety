@@ -40,6 +40,10 @@ class PermissionSeeder extends Seeder
                 'key' => 'events',
                 'actions' => ['view', 'create', 'edit', 'delete'],
             ],
+            'Assessment Driver' => [
+                'key' => 'driver.assessment',
+                'actions' => ['view'],
+            ],
             'Pengaturan Website' => [
                 'key' => 'settings',
                 'actions' => ['view', 'edit'],

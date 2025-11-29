@@ -48,22 +48,37 @@ class UpdateDriverAction
             $fotoDiriPath = $file->store('drivers/diri', 'public');
         }
 
-        // Update user account
+        // Update user account only if email, username, or password is provided
+        // This allows updating biodata without updating user account
+        // For profile page, we don't update user account at all
         $user = $driver->user;
-        if ($user) {
-            $userData = [
-                'name'     => $data['name'],
-                'username' => $data['username'],
-                'email'    => $data['email'],
-                'status'   => $data['status'] ?? 'pending',
-            ];
+        if ($user && (isset($data['email']) || isset($data['username']) || !empty($data['password']))) {
+            $userData = [];
+
+            // Only update username if provided
+            if (isset($data['username'])) {
+                $userData['username'] = $data['username'];
+            }
+
+            // Only update email if provided
+            if (isset($data['email'])) {
+                $userData['email'] = $data['email'];
+            }
 
             // Update password only if provided
             if (!empty($data['password'])) {
                 $userData['password'] = Hash::make($data['password']);
             }
 
-            $user->update($userData);
+            // Only update status if provided
+            if (isset($data['status'])) {
+                $userData['status'] = $data['status'];
+            }
+
+            // Only update if there's data to update
+            if (!empty($userData)) {
+                $user->update($userData);
+            }
         }
 
         // Update driver

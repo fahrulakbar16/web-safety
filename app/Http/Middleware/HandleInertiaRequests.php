@@ -84,7 +84,10 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error'   => fn() => $request->session()->get('error'),
+                'warning' => fn() => $request->session()->get('warning'),
                 'duplicates' => fn() => $request->session()->get('duplicates'),
+                'show_biodata_modal' => fn() => $request->session()->get('show_biodata_modal', false),
+                'missing_fields' => fn() => $request->session()->get('missing_fields', []),
             ],
             'errors' => fn() => $request->session()->get('errors')
                 ? $request->session()->get('errors')->toArray()

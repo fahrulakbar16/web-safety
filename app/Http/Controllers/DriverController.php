@@ -13,6 +13,7 @@ use App\Models\Company;
 use App\Models\Driver;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -47,6 +48,41 @@ class DriverController extends Controller
             'sortBy' => $sortBy,
             'sortDirection' => $sortDirection,
         ]);
+    }
+
+    /**
+     * Show the public registration form for drivers.
+     */
+    public function register()
+    {
+        $companies = Company::where('status', 'active')->get();
+
+        return Inertia::render('Driver/Register', [
+            'companies' => $companies,
+        ]);
+    }
+
+    /**
+     * Store a new driver registration (public).
+     */
+    public function storeRegistration(StoreDriverRequest $request)
+    {
+        try {
+            // Set status to pending for public registration
+            $data = $request->validated();
+            $data['status'] = 'pending';
+            
+            $driver = app(StoreDriverAction::class)->execute($request, $data);
+            
+            // Auto-login user after registration
+            $user = $driver->user;
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            return redirect()->route('dashboard')->with('success', 'Pendaftaran berhasil! Selamat datang di dashboard driver Anda.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
+        }
     }
 
     /**

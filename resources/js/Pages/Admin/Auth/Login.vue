@@ -1,164 +1,148 @@
 <template>
     <FullScreenLayout>
-        <div class="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
-            <div class="flex relative flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900">
-                <div class="flex flex-col flex-1 w-full lg:w-1/2">
-                    <div class="flex flex-col flex-1 justify-center mx-auto w-full max-w-md">
+        <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 py-12" :style="{ '--primary-color': primaryColor, '--secondary-color': secondaryColor }">
+            <!-- Background decorative elements -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-0 right-0 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl" :style="{ backgroundColor: withOpacity('primary', 0.2) }"></div>
+                <div class="absolute bottom-0 left-0 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl" :style="{ backgroundColor: withOpacity('secondary', 0.2) }"></div>
+            </div>
+
+            <div class="relative w-full max-w-md">
+                <!-- Logo/Brand Section -->
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-2xl shadow-lg" :style="{ background: `linear-gradient(to bottom right, ${primaryColor}, ${secondaryColor})` }">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                        Selamat Datang
+                    </h1>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Masuk ke akun Anda untuk melanjutkan
+                    </p>
+                </div>
+
+                <!-- Login Form Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8">
+                    <form @submit.prevent="form.post('/login')" class="space-y-6">
+                        <!-- Username/Email Field -->
                         <div>
-                            <div class="mb-5 text-center sm:mb-8">
-                                <div class="text-xl font-bold text-gray-800 dark:text-white/90">
-                                    Masuk
-                                </div>
-                                <p class="font-semibold text-gray-500 dark:text-gray-400">
-                                    Backoffice Henskristal
-                                </p>
-                            </div>
-                            <div>
-                                <form @submit.prevent="form.post('/login')">
-                                    <div class="space-y-5">
-                                        <!-- Username / Email -->
-                                        <div>
-                                            <label for="username"
-                                                class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-400">
-                                                Username / Email<span class="text-red-500">*</span>
-                                            </label>
-                                            <input type="text" id="username" v-model="form.user"
-                                                placeholder="Masukkan username / email Anda"
-                                                class="px-4 py-2.5 w-full h-11 text-sm text-gray-800 bg-transparent rounded-lg border border-gray-300 dark:bg-dark-900 placeholder:text-gray-400 focus:border-blue-300 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-indigo-800" />
-                                        </div>
-                                        <!-- Password -->
-                                        <div>
-                                            <div class="flex justify-between items-center mb-1.5">
-                                                <label for="password"
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                                    Kata Sandi<span class="text-red-500">*</span>
-                                                </label>
-                                                <a href="/forgot-password"
-                                                    class="text-xs font-medium text-indigo-600 hover:text-indigo-700">Lupa
-                                                    Kata Sandi ?</a>
-                                            </div>
-                                            <div class="relative">
-                                                <input v-model="form.password" :type="showPassword
-                                                        ? 'text'
-                                                        : 'password'
-                                                    " id="password" placeholder="Masukkan kata sandi"
-                                                    class="py-2.5 pr-11 pl-4 w-full h-11 text-sm text-gray-800 bg-transparent rounded-lg border border-gray-300 dark:bg-dark-900 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-300 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-indigo-800" />
-                                                <span @click="
-                                                    togglePasswordVisibility
-                                                "
-                                                    class="absolute right-5 top-1/2 z-30 text-gray-500 -translate-y-1/2 cursor-pointer dark:text-gray-400">
-                                                    <svg v-if="!showPassword" class="fill-current" width="24"
-                                                        height="24" viewBox="0 0 20 20" fill="none"
-                                                        xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                                            d="M10.0002 13.8619C7.23361 13.8619 4.86803 12.1372 3.92328 9.70241C4.86804 7.26761 7.23361 5.54297 10.0002 5.54297C12.7667 5.54297 15.1323 7.26762 16.0771 9.70243C15.1323 12.1372 12.7667 13.8619 10.0002 13.8619ZM10.0002 4.04297C6.48191 4.04297 3.49489 6.30917 2.4155 9.4593C2.3615 9.61687 2.3615 9.78794 2.41549 9.94552C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C13.5184 15.3619 16.5055 13.0957 17.5849 9.94555C17.6389 9.78797 17.6389 9.6169 17.5849 9.45932C16.5055 6.30919 13.5184 4.04297 10.0002 4.04297ZM9.99151 7.84413C8.96527 7.84413 8.13333 8.67606 8.13333 9.70231C8.13333 10.7286 8.96527 11.5605 9.99151 11.5605H10.0064C11.0326 11.5605 11.8646 10.7286 11.8646 9.70231C11.8646 8.67606 11.0326 7.84413 10.0064 7.84413H9.99151Z"
-                                                            fill="#98A2B3" />
-                                                    </svg>
-                                                    <svg v-else class="fill-current" width="24" height="24"
-                                                        viewBox="0 0 20 20" fill="none"
-                                                        xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                                            d="M4.63803 3.57709C4.34513 3.2842 3.87026 3.2842 3.57737 3.57709C3.28447 3.86999 3.28447 4.34486 3.57737 4.63775L4.85323 5.91362C3.74609 6.84199 2.89363 8.06395 2.4155 9.45936C2.3615 9.61694 2.3615 9.78801 2.41549 9.94558C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C11.255 15.3619 12.4422 15.0737 13.4994 14.5598L15.3625 16.4229C15.6554 16.7158 16.1302 16.7158 16.4231 16.4229C16.716 16.13 16.716 15.6551 16.4231 15.3622L4.63803 3.57709ZM12.3608 13.4212L10.4475 11.5079C10.3061 11.5423 10.1584 11.5606 10.0064 11.5606H9.99151C8.96527 11.5606 8.13333 10.7286 8.13333 9.70237C8.13333 9.5461 8.15262 9.39434 8.18895 9.24933L5.91885 6.97923C5.03505 7.69015 4.34057 8.62704 3.92328 9.70247C4.86803 12.1373 7.23361 13.8619 10.0002 13.8619C10.8326 13.8619 11.6287 13.7058 12.3608 13.4212ZM16.0771 9.70249C15.7843 10.4569 15.3552 11.1432 14.8199 11.7311L15.8813 12.7925C16.6329 11.9813 17.2187 11.0143 17.5849 9.94561C17.6389 9.78803 17.6389 9.61696 17.5849 9.45938C16.5055 6.30925 13.5184 4.04303 10.0002 4.04303C9.13525 4.04303 8.30244 4.17999 7.52218 4.43338L8.75139 5.66259C9.1556 5.58413 9.57311 5.54303 10.0002 5.54303C12.7667 5.54303 15.1323 7.26768 16.0771 9.70249Z"
-                                                            fill="#98A2B3" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Remember me -->
-                                        <div class="flex justify-between items-center">
-                                            <label class="inline-flex gap-2 items-center select-none">
-                                                <input type="checkbox" v-model="form.remember"
-                                                    class="text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" />
-                                                <span class="text-sm text-gray-600">Ingat Saya</span>
-                                            </label>
-                                        </div>
-                                        <!-- Button -->
-                                        <div>
-                                            <button type="submit"
-                                                class="flex gap-2 justify-center items-center px-4 py-3 w-full text-sm font-medium text-white bg-indigo-500 rounded-lg transition shadow-theme-xs hover:bg-indigo-600">
-                                                Masuk Sekarang
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <div></div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="hidden relative items-center w-full h-full bg-indigo-700 lg:w-1/2 dark:bg-white/5 lg:grid">
-                    <div class="flex justify-center items-center px-8 text-white z-1">
-                        <common-grid-shape />
-                        <!-- Carousel Container -->
-                        <div class="relative w-full max-w-2xl">
-                            <!-- Carousel Items -->
-                            <div class="overflow-hidden relative">
-                                <div class="flex transition-transform duration-500 ease-in-out" :style="{
-                                    transform: `translateX(-${currentSlide * 100
-                                        }%)`,
-                                }">
-                                    <div v-for="(slide, index) in slides" :key="index"
-                                        class="flex flex-col justify-center items-center flex-shrink-0 space-y-6 w-full min-h-[500px] text-center">
-                                        <!-- Logo/Image -->
-                                        <div class="flex justify-center items-center">
-                                            <img v-if="slide.img_url" :src="slide.img_url" alt="Logo"
-                                                class="object-contain opacity-95 drop-shadow-2xl w-250 h-250" />
-                                            <img v-else src="/images/logo/bg-login.png" alt="Logo"
-                                                class="object-contain opacity-95 drop-shadow-2xl w-250 h-250" />
-                                        </div>
-
-                                        <!-- Title -->
-                                        <h3 class="px-4 text-3xl font-bold leading-tight">
-                                            {{ slide.title }}
-                                        </h3>
-
-                                        <!-- Description -->
-                                        <p class="px-8 text-lg leading-relaxed text-white/90">
-                                            {{ slide.description }}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <!-- Navigation Dots -->
-                                <div
-                                    class="flex absolute bottom-0 left-1/2 gap-2 justify-center mt-36 -translate-x-1/2">
-                                    <button v-for="(slide, index) in slides" :key="index" @click="goToSlide(index)"
-                                        :class="[
-                                            'w-2.5 h-2.5 rounded-full transition-all duration-300',
-                                            currentSlide === index
-                                                ? 'bg-white w-8'
-                                                : 'bg-white/40 hover:bg-white/60',
-                                        ]" :aria-label="`Go to slide ${index + 1}`"></button>
-                                </div>
-
-                                <!-- Navigation Arrows -->
-                                <button @click="prevSlide"
-                                    class="flex absolute left-4 top-1/2 justify-center items-center w-10 h-10 text-white rounded-full backdrop-blur-sm transition-all -translate-y-1/2 bg-white/10 hover:bg-white/20"
-                                    aria-label="Previous slide">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 19l-7-7 7-7" />
+                            <label for="username" class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                Username / Email
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
-                                </button>
-                                <button @click="nextSlide"
-                                    class="flex absolute right-4 top-1/2 justify-center items-center w-10 h-10 text-white rounded-full backdrop-blur-sm transition-all -translate-y-1/2 bg-white/10 hover:bg-white/20"
-                                    aria-label="Next slide">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
+                                </div>
+                                <input
+                                    type="text"
+                                    id="username"
+                                    v-model="form.user"
+                                    placeholder="Masukkan username / email Anda"
+                                    class="block w-full pl-10 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400 bg-gray-50 border rounded-xl transition-all duration-200 dark:bg-gray-700/50 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:outline-none"
+                                    :class="form.errors.user ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                                    :style="form.errors.user ? {} : { '--tw-ring-color': primaryColor, '--focus-border-color': primaryColor }"
+                                    @focus="(e) => { if (!form.errors.user) e.target.style.borderColor = primaryColor; e.target.style.boxShadow = `0 0 0 2px ${withOpacity('primary', 0.2)}`; }"
+                                    @blur="(e) => { if (!form.errors.user) { e.target.style.borderColor = ''; e.target.style.boxShadow = ''; } }"
+                                />
+                            </div>
+                            <p v-if="form.errors.user" class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.errors.user }}</p>
+                                        </div>
+
+                        <!-- Password Field -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    Kata Sandi
+                                    <span class="text-red-500 ml-1">*</span>
+                                            </label>
+                                <a href="/forgot-password" class="text-xs font-medium transition-colors" :style="{ color: primaryColor }" :class="{ 'hover:opacity-80': true }">
+                                    Lupa Kata Sandi?
+                                </a>
+                            </div>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                </div>
+                                <input
+                                    v-model="form.password"
+                                    :type="showPassword ? 'text' : 'password'"
+                                    id="password"
+                                    placeholder="Masukkan kata sandi"
+                                    class="block w-full pl-10 pr-10 py-3 text-sm text-gray-900 placeholder-gray-400 bg-gray-50 border rounded-xl transition-all duration-200 dark:bg-gray-700/50 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:outline-none"
+                                    :class="form.errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                                    :style="form.errors.password ? {} : { '--tw-ring-color': primaryColor, '--focus-border-color': primaryColor }"
+                                    @focus="(e) => { if (!form.errors.password) e.target.style.borderColor = primaryColor; e.target.style.boxShadow = `0 0 0 2px ${withOpacity('primary', 0.2)}`; }"
+                                    @blur="(e) => { if (!form.errors.password) { e.target.style.borderColor = ''; e.target.style.boxShadow = ''; } }"
+                                />
+                                <button
+                                    type="button"
+                                    @click="togglePasswordVisibility"
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                                >
+                                    <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                                     </svg>
                                 </button>
                             </div>
+                            <p v-if="form.errors.password" class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.errors.password }}</p>
                         </div>
+
+                        <!-- Remember Me -->
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="remember"
+                                v-model="form.remember"
+                                class="w-4 h-4 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                :style="{ 'accent-color': primaryColor }"
+                            />
+                            <label for="remember" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                                Ingat Saya
+                            </label>
                     </div>
+
+                        <!-- Submit Button -->
+                        <button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            :style="{
+                                background: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})`,
+                                '--tw-ring-color': primaryColor
+                            }"
+                            @mouseenter="(e) => { if (!form.processing) { e.target.style.background = `linear-gradient(to right, ${primaryDark}, ${secondaryDark})`; } }"
+                            @mouseleave="(e) => { if (!form.processing) { e.target.style.background = `linear-gradient(to right, ${primaryColor}, ${secondaryColor})`; } }"
+                        >
+                            <span v-if="!form.processing">Masuk Sekarang</span>
+                            <span v-else class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Memproses...
+                            </span>
+                            <svg v-if="!form.processing" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </button>
+                    </form>
                 </div>
+
+                <!-- Footer Text -->
+                <p class="mt-6 text-xs text-center text-gray-500 dark:text-gray-400">
+                    © {{ new Date().getFullYear() }} All rights reserved.
+                </p>
             </div>
         </div>
     </FullScreenLayout>
@@ -166,9 +150,9 @@
 
 <script setup>
 import FullScreenLayout from "@/Components/layout/FullScreenLayout.vue";
-import CommonGridShape from "@/Components/common/CommonGridShape.vue";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useForm } from "@inertiajs/vue3";
+import { useColors } from "@/Composables/useColors";
 
 const props = defineProps({
     googleLoginUrl: String,
@@ -179,75 +163,30 @@ const form = useForm({
     password: "",
     remember: false,
 });
+
 const showPassword = ref(false);
 
 const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
 };
 
-// Carousel state
-const currentSlide = ref(0);
-const slides = ref(
-    [
-    {
-        category: "Prinsip",
-        title: "Pantau, Kelola, & Optimalkan Operasional Anda",
-        description:
-            "Platform terintegrasi untuk mengelola penjualan, distribusi, inventaris, serta performa bisnis es batu kristal.",
-        img_url: null,
-    },
-    {
-        category: "Prinsip",
-        title: "Pantau, Kelola, & Optimalkan Operasional Anda",
-        description:
-            "Platform terintegrasi untuk mengelola penjualan, distribusi, inventaris, serta performa bisnis es batu kristal.",
-        img_url: null,
-    },
-          ]
-);
+// Get colors from settings
+const { colors, withOpacity, getRgb } = useColors();
 
-// Auto-play carousel
-let carouselInterval = null;
+// Computed styles for dynamic colors
+const primaryColor = computed(() => colors.value.primary);
+const secondaryColor = computed(() => colors.value.secondary);
 
-const startCarousel = () => {
-    carouselInterval = setInterval(() => {
-        nextSlide();
-    }, 5000); // Change slide every 5 seconds
+// Helper function to darken color
+const darkenColor = (hex, percent = 10) => {
+    const num = parseInt(hex.replace("#", ""), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.max(0, Math.min(255, (num >> 16) - amt));
+    const G = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) - amt));
+    const B = Math.max(0, Math.min(255, (num & 0x0000FF) - amt));
+    return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1).toUpperCase().padStart(6, '0')}`;
 };
 
-const stopCarousel = () => {
-    if (carouselInterval) {
-        clearInterval(carouselInterval);
-    }
-};
-
-const nextSlide = () => {
-    currentSlide.value = (currentSlide.value + 1) % slides.value.length;
-};
-
-const prevSlide = () => {
-    currentSlide.value =
-        currentSlide.value === 0
-            ? slides.value.length - 1
-            : currentSlide.value - 1;
-};
-
-const goToSlide = (index) => {
-    currentSlide.value = index;
-    stopCarousel();
-    startCarousel();
-};
-
-// Start carousel on mount
-import { onMounted, onUnmounted } from "vue";
-
-onMounted(() => {
-    if (slides.value.length > 1) {
-        startCarousel();
-    }
-});
-
-onUnmounted(() => {
-    stopCarousel();
-});
+const primaryDark = computed(() => darkenColor(primaryColor.value, 10));
+const secondaryDark = computed(() => darkenColor(secondaryColor.value, 10));
 </script>

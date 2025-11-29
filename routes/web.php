@@ -22,6 +22,7 @@ Route::middleware([
     // Dashboard & Profile
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'showDetail'])->name('profile.show');
+    Route::put('/profile/driver', [ProfileController::class, 'updateDriverBiodata'])->name('profile.driver.update');
 
     // Roles
     Route::resource('/roles', RoleController::class);
@@ -36,6 +37,25 @@ Route::middleware([
 
     // Drivers
     Route::resource('/drivers', DriverController::class);
+
+    // Driver Assessment
+    Route::prefix('driver/assessment')->name('driver.assessment.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Driver\AssessmentController::class, 'index'])->name('index');
+        Route::get('/materi/{eventMateri}', [\App\Http\Controllers\Driver\AssessmentController::class, 'showMateri'])->name('materi.show');
+        Route::post('/materi/{eventMateri}/complete', [\App\Http\Controllers\Driver\AssessmentController::class, 'completeMateri'])->name('materi.complete');
+        Route::get('/event/{event}/exam/{exam}', [\App\Http\Controllers\Driver\AssessmentController::class, 'showExam'])->name('exam.show');
+        Route::post('/event/{event}/exam/{exam}/submit', [\App\Http\Controllers\Driver\AssessmentController::class, 'submitExam'])->name('exam.submit');
+    });
+
+    // Driver Company Transfer
+    Route::prefix('driver/company-transfer')->name('driver.company-transfer.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Driver\CompanyTransferController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Driver\CompanyTransferController::class, 'store'])->name('store');
+        Route::get('/{transfer}/quiz/event/{event}/exam/{exam}', [\App\Http\Controllers\Driver\CompanyTransferController::class, 'showQuiz'])->name('quiz');
+        Route::post('/{transfer}/quiz/event/{event}/exam/{exam}/submit', [\App\Http\Controllers\Driver\CompanyTransferController::class, 'submitQuiz'])->name('quiz.submit');
+        Route::get('/{transfer}/upload-screenshot', [\App\Http\Controllers\Driver\CompanyTransferController::class, 'showUploadScreenshot'])->name('upload-screenshot');
+        Route::post('/{transfer}/upload-screenshot', [\App\Http\Controllers\Driver\CompanyTransferController::class, 'uploadScreenshot'])->name('upload-screenshot.store');
+    });
 
     // Events
     Route::resource('/events', EventController::class);
@@ -77,4 +97,11 @@ Route::middleware([
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'auth'])->name('auth');
+
+    // Driver Registration (Public)
+    Route::get('/driver/register', [DriverController::class, 'register'])->name('driver.register');
+    Route::post('/driver/register', [DriverController::class, 'storeRegistration'])->name('driver.register.store');
+
+    // Quick store company for driver registration (Public)
+    Route::post('/companies/quick-store', [CompanyController::class, 'quickStore'])->name('companies.quick-store.public');
 });

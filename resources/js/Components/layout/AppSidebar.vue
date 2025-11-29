@@ -58,7 +58,7 @@
         >
             <nav>
                 <div
-                    v-for="(menuGroup, groupIndex) in menuGroups"
+                    v-for="(menuGroup, groupIndex) in filteredMenuGroups"
                     :key="groupIndex"
                     class="mb-6"
                 >
@@ -72,6 +72,7 @@
                         <li
                             v-for="(item, index) in menuGroup.items"
                             :key="item.name"
+                            v-show="hasRoleAccess(item.role) && (!item.permission || can(item.permission))"
                         >
                             <button
                                 v-if="
@@ -133,6 +134,7 @@
                             <Link
                                 v-else-if="
                                     (item.path || item.pathName) &&
+                                    hasRoleAccess(item.role) &&
                                     (!item.permission || can(item.permission))
                                 "
                                 :href="
@@ -203,8 +205,9 @@
                                         >
                                             <li
                                                 v-if="
-                                                    !subItem?.permission ||
-                                                    can(subItem.permission)
+                                                    hasRoleAccess(subItem?.role) &&
+                                                    (!subItem?.permission ||
+                                                    can(subItem.permission))
                                                 "
                                             >
                                                 <Link
@@ -546,9 +549,32 @@ import { usePage } from "@inertiajs/vue3";
 import { useAuth } from "@/Composables/useAuth";
 import { useColors } from "@/Composables/useColors";
 
-const { user, is, can } = useAuth();
+const { user, is, can, roles } = useAuth();
 const page = usePage();
 const { colors, withOpacity } = useColors();
+
+// Function to check if user role matches menu item role
+const hasRoleAccess = (menuRole) => {
+    // If no role specified or 'all', show to everyone
+    if (!menuRole || menuRole === 'all') {
+        return true;
+    }
+
+    // Get user roles
+    const userRoles = Array.isArray(roles) ? roles : [];
+
+    // Check if user has the required role
+    if (menuRole === 'admin') {
+        return is('Admin') || is('Superadmin') || userRoles.includes('Admin') || userRoles.includes('Superadmin');
+    }
+
+    if (menuRole === 'driver') {
+        return is('Driver') || userRoles.includes('Driver');
+    }
+
+    // For other roles, check if user has that role
+    return is(menuRole) || userRoles.includes(menuRole);
+};
 
 console.log("=== PAGE PROPS ===", page.props.settings);
 // Website settings
@@ -670,6 +696,21 @@ const menuGroups = [
                 name: "Event",
                 pathName: "events.index",
                 permission: "events.view",
+                role: 'admin',
+            },
+            {
+                icon: QuestionnaireIcon,
+                name: "Assessment Driver",
+                pathName: "driver.assessment.index",
+                permission: "driver.assessment.view",
+                role: 'driver',
+            },
+            {
+                icon: BriefCase,
+                name: "Pergantian PT",
+                pathName: "driver.company-transfer.index",
+                permission: "driver.assessment.view",
+                role: 'driver',
             },
         ],
     },
@@ -681,12 +722,14 @@ const menuGroups = [
                 name: "Perusahaan",
                 pathName: "companies.index",
                 permission: "companies.view",
+                role: 'admin',
             },
             {
                 icon: VehicleIcon,
                 name: "Driver",
                 pathName: "drivers.index",
                 permission: "drivers.view",
+                role: 'admin',
             },
         ],
     },
@@ -696,6 +739,7 @@ const menuGroups = [
             {
                 icon: UserGroupIcon,
                 name: "Pengguna & Akses",
+                role: 'admin',
                 subItems: [
                     {
                         name: "Data Pengguna",
@@ -719,10 +763,41 @@ const menuGroups = [
                 name: "Pengaturan Website",
                 path: "/settings",
                 permission: "settings.view",
+                role: 'admin',
             },
         ],
     },
 ];
+
+// Filter menu groups to only show groups with visible items
+const filteredMenuGroups = computed(() => {
+    return menuGroups.map(group => {
+        const visibleItems = group.items.filter(item => {
+            // Check role access
+            if (!hasRoleAccess(item.role)) {
+                return false;
+            }
+            // Check permission
+            if (item.permission && !can(item.permission)) {
+                return false;
+            }
+            // For items with subItems, check if any subItem is visible
+            if (item.subItems) {
+                const visibleSubItems = item.subItems.filter(subItem => {
+                    return hasRoleAccess(subItem?.role) && (!subItem?.permission || can(subItem.permission));
+                });
+                // Only show parent if it has visible subItems
+                return visibleSubItems.length > 0;
+            }
+            return true;
+        });
+
+        return {
+            ...group,
+            items: visibleItems
+        };
+    }).filter(group => group.items.length > 0); // Only show groups with visible items
+});
 
 const isActive = (maybeUrl) => {
     if (!maybeUrl) return false;
@@ -744,17 +819,21 @@ const toggleSubmenu = (groupIndex, itemIndex) => {
 };
 
 const isAnySubmenuRouteActive = computed(() => {
-    return menuGroups.some((group) =>
+    return filteredMenuGroups.value.some((group) =>
         group.items.some(
             (item) =>
                 item.subItems &&
-                item.subItems.some((subItem) => isActive(subItem.path))
+                item.subItems.some((subItem) => isActive(subItem.pathName ? route(subItem.pathName) : subItem.path))
         )
     );
 });
 
 const hasActiveSubmenuRoute = (groupIndex, itemIndex) => {
-    const item = menuGroups[groupIndex].items[itemIndex];
+    const groups = filteredMenuGroups.value;
+    if (!groups || !groups[groupIndex] || !groups[groupIndex].items || !groups[groupIndex].items[itemIndex]) {
+        return false;
+    }
+    const item = groups[groupIndex].items[itemIndex];
     return item.subItems?.some((subItem) =>
         isActive(subItem.pathName ? route(subItem.pathName) : subItem.path)
     ) || false;
